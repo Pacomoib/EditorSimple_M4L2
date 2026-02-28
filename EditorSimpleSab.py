@@ -4,7 +4,9 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap 
 
-from PIL import Image
+from PIL import Image 
+from PIL import ImageFilter
+from PIL.ImageFilter import *
 
 app = QApplication([])
 main_win = QWidget()
@@ -86,6 +88,48 @@ class ImageProcessor():
         pixmapimage = pixmapimage.scaled(w,h, Qt.KeepAspectRatio)
         lb_image.setPixmap(pixmapimage)
         lb_image.show()
+    
+    def do_bw(self): 
+        self.image = self.image.convert('L')
+        self.SaveImage()
+        image_path = os.path.join(workdir,self.save_dir,self.filename)
+        self.ShowImage(image_path)
+    
+    def do_left(self):
+        self.image = self.image.transpose(Image.ROTATE_90)
+        self.SaveImage()
+        image_path = os.path.join(workdir,self.save_dir,self.filename)
+        self.ShowImage(image_path)
+
+    def do_right(self):
+        self.image = self.image.transpose(Image.ROTATE_270)
+        self.SaveImage()
+        image_path = os.path.join(workdir,self.save_dir,self.filename)
+        self.ShowImage(image_path)
+
+    def do_flip(self):
+        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.SaveImage()
+        image_path = os.path.join(workdir,self.save_dir,self.filename)
+        self.ShowImage(image_path)
+        
+    def do_flip(self):
+        self.image = self.image.filter(SHARPEN)
+        self.SaveImage()
+        image_path = os.path.join(workdir,self.save_dir,self.filename)
+        self.ShowImage(image_path)
+    
+    def do_sharpen(self):
+       self.image = self.image.filter(SHARPEN)
+       self.SaveImage()
+       image_path = os.path.join(workdir, self.save_dir, self.filename)
+       self.ShowImage(image_path)
+
+    def SaveImage(self):
+        path = os.path.join(workdir,self.save_dir)
+        if not(os.path.exists(path) or os.path.isdir(path)):
+            os.mkdir(path)
+        fullname = os.path.join(path,self.filename)
 
 workimage = ImageProcessor()
 
@@ -97,6 +141,11 @@ def ShowChosenImage():
         workimage.ShowImage(image_path)
 
 lw_files.currentRowChanged.connect(ShowChosenImage)
+btn_bw.clicked.connect(workimage.do_bw)
+btn_flip.clicked.connect(workimage.do_flip)
+btn_left.clicked.connect(workimage.do_left)
+btn_right.clicked.connect(workimage.do_right)
+btn_sharp.clicked.connect(workimage.do_sharpen)
 
 
 app.exec()
